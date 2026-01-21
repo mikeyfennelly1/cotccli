@@ -2,3 +2,5 @@
 
 [NOTE]
 This is originally created for Linux.
+
+Get `virtual_memory` and `cpu_percent`.
