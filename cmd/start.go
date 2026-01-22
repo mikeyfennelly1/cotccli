@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -16,15 +17,21 @@ var startCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		port := "9090"
 		log.Infof("Started Application listening on port %s", port)
-		reading, err := sysinfo.GetReading()
-		if err != nil {
-			log.Fatal("an error occurred reading sysinfo", err)
-		}
-		readingJson, err := json.Marshal(reading)
-		if err != nil {
-			log.Errorf("error marshalling json to byte array: %v", err)
-		}
-		log.Infof("read data: %s", readingJson)
+
+		sysinfoChan := make(chan map[string]float64)
+		go sysinfo.ScheduledProducer(context.Background(), sysinfoChan)
+
+		go func() {
+			for msg := range sysinfoChan {
+				readingJson, err := json.Marshal(msg)
+				if err != nil {
+					log.Errorf("error marshalling json to byte array: %v", err)
+				}
+				log.Infof("read data: %s", readingJson)
+			}
+			log.Debugf("sysinfo channel closed, exiting worker")
+		}()
+
 		log.Fatal(http.ListenAndServe(":"+port, nil))
 	},
 }
