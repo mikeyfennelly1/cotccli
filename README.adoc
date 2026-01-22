@@ -1,6 +1,3 @@
 = Desktop application for sysinfo in y2/b3 project
 
-[NOTE]
-This is originally created for Linux.
-
-Get `virtual_memory` and `cpu_percent`.
+This application returns system information as JSON, based on the `Message` struct in `sysinfo/sysinfo_reading.go`, on a 1-second incremental basis.
