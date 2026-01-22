@@ -18,7 +18,7 @@ var startCmd = &cobra.Command{
 		port := "9090"
 		log.Infof("Started Application listening on port %s", port)
 
-		sysinfoChan := make(chan map[string]float64)
+		sysinfoChan := make(chan sysinfo.Message)
 		go sysinfo.ScheduledProducer(context.Background(), sysinfoChan)
 
 		go func() {

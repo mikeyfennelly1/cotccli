@@ -9,30 +9,43 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func GetReading() (map[string]float64, error) {
+type Message struct {
+	MACAddress string             `json:"mac_address"`
+	ReadTime   int64              `json:"read_time"`
+	Metrics    map[string]float64 `json:"metrics"`
+}
+
+func GetReading() (Message, error) {
+	mac, err := GetMACAddress()
+	if err != nil {
+		return Message{}, err
+	}
 	log.Tracef("attempting to read virtual memory info")
 	vmemStat, err := mem.VirtualMemory()
 	if err != nil {
-		return nil, err
+		return Message{}, err
 	}
 	log.Tracef("attempting to read average load info")
 	amount, err := load.Avg()
 	if err != nil {
-		return nil, err
+		return Message{}, err
 	}
 
 	sinceEpochMilli := time.Now().UnixMilli()
 
-	return map[string]float64{
-		"read_time":      float64(sinceEpochMilli),
-		"vmem_available": float64(vmemStat.Available),
-		"load_1":         amount.Load1,
-		"load_5":         amount.Load5,
-		"load_15":        amount.Load15,
+	return Message{
+		MACAddress: mac,
+		ReadTime:   sinceEpochMilli,
+		Metrics: map[string]float64{
+			"vmem_available": float64(vmemStat.Available),
+			"load_1":         amount.Load1,
+			"load_5":         amount.Load5,
+			"load_15":        amount.Load15,
+		},
 	}, nil
 }
 
-func ScheduledProducer(ctx context.Context, messageChannel chan map[string]float64) {
+func ScheduledProducer(ctx context.Context, messageChannel chan Message) {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
