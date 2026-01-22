@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/client"
 	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/sysinfo"
 	"github.com/spf13/cobra"
 )
@@ -23,11 +23,10 @@ var startCmd = &cobra.Command{
 
 		go func() {
 			for msg := range sysinfoChan {
-				readingJson, err := json.Marshal(msg)
+				err := client.PushToAggregator(msg)
 				if err != nil {
-					log.Errorf("error marshalling json to byte array: %v", err)
+					log.Errorf("error writing to api: %v", err)
 				}
-				log.Infof("read data: %s", readingJson)
 			}
 			log.Debugf("sysinfo channel closed, exiting worker")
 		}()
