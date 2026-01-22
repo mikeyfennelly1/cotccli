@@ -1,6 +1,7 @@
 package sysinfo
 
 import (
+	"time"
 	"github.com/shirou/gopsutil/v4/load"
 	"github.com/shirou/gopsutil/v4/mem"
 )
@@ -15,7 +16,10 @@ func GetReading() (map[string]float64, error) {
 		return nil, err
 	}
 
+	sinceEpochMilli := time.Now().UnixMilli()
+
 	return map[string]float64{
+		"read_time":      float64(sinceEpochMilli),
 		"vmem_available": float64(vmemStat.Available),
 		"load_1":         amount.Load1,
 		"load_5":         amount.Load5,
