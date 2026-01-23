@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -15,15 +16,18 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts the application server",
 	Run: func(cmd *cobra.Command, args []string) {
-		port := "9090"
-		log.Infof("Started Application listening on port %s", port)
+		log.Infof("Starting server on port %d", listeningPort)
+		log.Infof("Collector agent: %s:%d",
+			collectorAgentHostname,
+			collectorAgentListeningPort,
+		)
 
 		sysinfoChan := make(chan sysinfo.Message)
 		go sysinfo.ScheduledProducer(context.Background(), sysinfoChan)
 
 		go func() {
 			for msg := range sysinfoChan {
-				err := client.PushToAggregator(msg)
+				err := client.PushToAggregator(msg, collectorAgentHostname, collectorAgentListeningPort)
 				if err != nil {
 					log.Errorf("error writing to api: %v", err)
 				}
@@ -31,7 +35,7 @@ var startCmd = &cobra.Command{
 			log.Debugf("sysinfo channel closed, exiting worker")
 		}()
 
-		log.Fatal(http.ListenAndServe(":"+port, nil))
+		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", listeningPort), nil))
 	},
 }
 
