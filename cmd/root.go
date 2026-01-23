@@ -8,7 +8,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var logLevel string
+var (
+	logLevel                    string
+	collectorAgentHostname      string
+	listeningPort               int
+	publishingIntervalSecs      int
+	collectorAgentListeningPort int
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "sysinfo",
@@ -33,4 +39,8 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "Log level (debug, info, warn, error, fatal, panic)")
+	rootCmd.PersistentFlags().IntVar(&listeningPort, "port", 8081, "Port for this application to listen on.")
+	rootCmd.PersistentFlags().IntVar(&publishingIntervalSecs, "publishing_interval_sec", 1, "Interval between publishing a message to the collector-agent in seconds.")
+	rootCmd.PersistentFlags().StringVar(&collectorAgentHostname, "hostname", "localhost", "Hostname for the aggregator")
+	rootCmd.PersistentFlags().IntVar(&collectorAgentListeningPort, "agent_port", 8080, "Port for the aggregator")
 }
