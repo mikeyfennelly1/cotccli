@@ -3,22 +3,23 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/sysinfo"
 	log "github.com/sirupsen/logrus"
 )
 
-const apiEndpoint = "http://localhost:8080/sysinfo"
-
 // PushToAggregator sends a sysinfo message to the API
-func PushToAggregator(message sysinfo.Message) error {
+func PushToAggregator(message sysinfo.Message, host string, port int) error {
 	log.Infof("sending message to api: %v", message)
 
 	jsonData, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
+
+	apiEndpoint := formatAPIEndpoint(host, port)
 
 	req, err := http.NewRequest(http.MethodPost, apiEndpoint, bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -38,4 +39,8 @@ func PushToAggregator(message sysinfo.Message) error {
 	}
 
 	return nil
+}
+
+func formatAPIEndpoint(host string, port int) string {
+	return fmt.Sprintf("http://%s:%d/sysinfo", host, port)
 }
