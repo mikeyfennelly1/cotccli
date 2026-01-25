@@ -34,8 +34,8 @@ func PushToAggregator(message sysinfo.Message, host string, port int) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		log.Warnf("api returned non-200 status code: %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusCreated {
+		log.Warnf("api returned non-201 status code: %d", resp.StatusCode)
 	}
 
 	return nil
