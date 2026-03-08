@@ -39,7 +39,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "Log level (debug, info, warn, error, fatal, panic)")
-	rootCmd.PersistentFlags().IntVar(&listeningPort, "listen_port", 8081, "Port for this application to listen on.")
+	rootCmd.PersistentFlags().IntVar(&listeningPort, "listen_port", 8079, "Port for this application to listen on.")
 	rootCmd.PersistentFlags().IntVar(&publishingIntervalSecs, "publishing_interval_sec", 1, "Interval between publishing a message to the collector-agent in seconds.")
 	rootCmd.PersistentFlags().StringVar(&collectorAgentHostname, "hostname", "localhost", "Hostname for the aggregator")
 	rootCmd.PersistentFlags().IntVar(&collectorAgentListeningPort, "collector_port", 8080, "Port that the collector API is listening on.")
