@@ -1,19 +1,25 @@
 package libproducer
 
-import log "github.com/sirupsen/logrus"
+import (
+	"fmt"
+
+	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/client"
+	log "github.com/sirupsen/logrus"
+)
 
 type Producer interface {
-	StartScheduledProducer()
+	StartScheduledProducer(collectorClient *client.CollectorClient, streamName string)
+	GetName() string
 }
 
-func ReaderFactory(sourceType string, sourceId string) Reader {
+func ReaderFactory(sourceType string, sourceId string) (Reader, error) {
 	switch sourceType {
 	case "sysinfo":
 		return sysinfoReader{
 			id: sourceId,
-		}
+		}, nil
 	default:
 		log.Fatalf("reader type %s does not exist", sourceType)
-		return nil
+		return nil, fmt.Errorf("unknown reader type - provided: '%s'", sourceType)
 	}
 }
