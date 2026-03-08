@@ -2,6 +2,7 @@ package libproducer
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/client"
@@ -15,6 +16,10 @@ type ReaderDecorator struct {
 	messageChannel chan client.Message
 }
 
+func (manager ReaderDecorator) GetName() string {
+	return fmt.Sprintf("%s--%s", manager.reader.GetType(), manager.reader.GetName())
+}
+
 type Reader interface {
 	GetType() string
 	GetName() string
@@ -22,24 +27,21 @@ type Reader interface {
 	ToProducer() Producer
 }
 
-func (manager ReaderDecorator) StartScheduledProducer() {
+func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.CollectorClient, streamName string) {
 	ticker := time.NewTicker(manager.intervalSecs * time.Second)
 	readerInstanceName := manager.reader.GetName()
 	defer ticker.Stop()
 
-	collectorClient := client.CollectorClient{
-		BaseUrl: "http://localhost:8080",
-	}
-
 	// goroutine for subscriber to this producer job
 	go func() {
 		for msg := range manager.messageChannel {
-			err := collectorClient.SendMessage(msg, manager.reader.GetType())
+			log.Debugf("%s - sending message from producer to stream: %s", readerInstanceName, streamName)
+			err := collectorClient.SendMessage(msg, streamName)
 			if err != nil {
 				log.Errorf("error writing to api: %v", err)
 			}
 		}
-		log.Debugf("%s channel closed, exiting worker", manager.reader.GetName())
+		log.Debugf("%s channel closed, exiting worker", manager.GetName())
 	}()
 
 	// start the producer
