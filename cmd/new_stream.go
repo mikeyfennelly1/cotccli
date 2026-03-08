@@ -33,7 +33,7 @@ var newStreamCmd = &cobra.Command{
 func init() {
 	newStreamCmd.Flags().StringVar(&streamName, "name", "", "Name of the new stream (required)")
 	newStreamCmd.Flags().StringVar(&streamParent, "parent", "", "Parent of the new stream")
-	newStreamCmd.Flags().StringVar(&reporterBaseUrl, "reporter-url", "http://localhost:8082", "Base URL of the reporting API")
+	newStreamCmd.Flags().StringVar(&reporterBaseUrl, "reporter-url", "http://localhost:8080", "Base URL of the reporting API")
 
 	newStreamCmd.MarkFlagRequired("name")
 
