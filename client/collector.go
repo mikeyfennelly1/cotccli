@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -33,14 +34,17 @@ func (client CollectorClient) Health() error {
 }
 
 func (client CollectorClient) SendMessage(message Message, topic string) error {
-	log.Infof("sending message to api: %v", message)
+	log.Infof("sending message to topic %s: %v", topic, message)
 
-	jsonData, err := json.Marshal(message)
+	jsonData, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
 		return err
 	}
+	log.Debugf("message json:\n%s", string(jsonData))
 
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", client.BaseUrl, topic), bytes.NewBuffer(jsonData))
+	endpoint := fmt.Sprintf("%s/%s", client.BaseUrl, topic)
+	log.Debugf("sending POST request to endpoint: %s", endpoint)
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
@@ -53,6 +57,12 @@ func (client CollectorClient) SendMessage(message Message, topic string) error {
 	}
 	defer resp.Body.Close()
 
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	log.Debugf("response status: %d, body: %s", resp.StatusCode, string(body))
+
 	if resp.StatusCode != http.StatusCreated {
 		log.Warnf("api returned non-201 status code: %d", resp.StatusCode)
 	}
@@ -61,7 +71,7 @@ func (client CollectorClient) SendMessage(message Message, topic string) error {
 }
 
 type Message struct {
-	ProducerName string
+	ProducerName string             `json:"producer_name"`
 	ReadTime     int64              `json:"read_time"`
 	Values       map[string]float64 `json:"values"`
 }
