@@ -61,3 +61,24 @@ func (client ConsumerClient) CreateStream(stream NewStream) error {
 
 	return nil
 }
+
+func (client ConsumerClient) DeleteStream(name string) error {
+	url := fmt.Sprintf("%s/api/consumer/streams?name=%s", client.BaseUrl, name)
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
+	if err != nil {
+		return err
+	}
+
+	httpClient := &http.Client{}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("api returned non-200 status: %d", resp.StatusCode)
+	}
+
+	return nil
+}
