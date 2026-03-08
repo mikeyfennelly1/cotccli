@@ -60,8 +60,8 @@ func (client ReportingClient) GetStreamHierarchy() error {
 	return nil
 }
 
-func (client ReportingClient) SubscribeToStream(streamID int) error {
-	url := fmt.Sprintf("%s/api/reporting/streams/%d", client.BaseUrl, streamID)
+func (client ReportingClient) SubscribeToStream(streamID string) error {
+	url := fmt.Sprintf("%s/api/reporting/streams/%s", client.BaseUrl, streamID)
 	log.Debugf("subscribing to stream at url: %s", url)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
