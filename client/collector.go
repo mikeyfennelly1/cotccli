@@ -10,7 +10,7 @@ import (
 )
 
 func NewCollectorClient(host string, port int) *CollectorClient {
-	baseUrl := fmt.Sprintf("http://%s:%d", host, port)
+	baseUrl := fmt.Sprintf("http://%s:%d/api/collector", host, port)
 	return &CollectorClient{
 		BaseUrl: baseUrl,
 	}
