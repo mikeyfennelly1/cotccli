@@ -35,7 +35,7 @@ func (client CollectorClient) SendMessage(message Message, topic string) error {
 	}
 	log.Debugf("message json:\n%s", string(jsonData))
 
-	endpoint := fmt.Sprintf("%s/%s", client.BaseUrl, topic)
+	endpoint := fmt.Sprintf("%s/api/collector/%s", client.BaseUrl, topic)
 	log.Debugf("sending POST request to endpoint: %s", endpoint)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(jsonData))
 	if err != nil {
