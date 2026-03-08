@@ -10,13 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func NewCollectorClient(host string, port int) *CollectorClient {
-	baseUrl := fmt.Sprintf("http://%s:%d/api/collector", host, port)
-	return &CollectorClient{
-		BaseUrl: baseUrl,
-	}
-}
-
 type CollectorClient struct {
 	BaseUrl string
 }
