@@ -18,7 +18,12 @@ var subscribeCmd = &cobra.Command{
 			panic(err)
 		}
 		c := client.NewReportingClient(cfg.GetWebAppBaseUrl())
-		if err := c.SubscribeToStream(streamName); err != nil {
+		streamID, err := c.GetStreamUUIDByName(streamName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to get stream ID: %v\n", err)
+			os.Exit(1)
+		}
+		if err := c.SubscribeToStream(streamID); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to subscribe to stream: %v\n", err)
 			os.Exit(1)
 		}

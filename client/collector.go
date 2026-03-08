@@ -64,6 +64,7 @@ func (client CollectorClient) SendMessage(message Message, topic string) error {
 }
 
 type Message struct {
+	ProducerId   string             `json:"producer_id"`
 	ProducerName string             `json:"producer_name"`
 	ReadTime     int64              `json:"read_time"`
 	Values       map[string]float64 `json:"values"`

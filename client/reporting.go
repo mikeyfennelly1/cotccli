@@ -38,7 +38,7 @@ func (client ReportingClient) Health() error {
 }
 
 func (client ReportingClient) GetStreamHierarchy() error {
-	resp, err := http.Get(fmt.Sprintf("%s/api/reporting/streams/hierarchy", client.BaseUrl))
+	resp, err := http.Get(fmt.Sprintf("%s/api/reporting/streams", client.BaseUrl))
 	if err != nil {
 		return err
 	}
@@ -60,6 +60,31 @@ func (client ReportingClient) GetStreamHierarchy() error {
 	return nil
 }
 
+type streamLookup struct {
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+}
+
+func (client ReportingClient) GetStreamUUIDByName(name string) (string, error) {
+	url := fmt.Sprintf("%s/api/reporting/streams?name=%s", client.BaseUrl, name)
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("api returned non-200 status: %d", resp.StatusCode)
+	}
+
+	var stream streamLookup
+	if err := json.NewDecoder(resp.Body).Decode(&stream); err != nil {
+		return "", err
+	}
+
+	return stream.UUID, nil
+}
+
 func (client ReportingClient) SubscribeToStream(streamID string) error {
 	url := fmt.Sprintf("%s/api/reporting/streams/%s", client.BaseUrl, streamID)
 	log.Debugf("subscribing to stream at url: %s", url)
@@ -70,7 +95,7 @@ func (client ReportingClient) SubscribeToStream(streamID string) error {
 	}
 	req.Header.Set("Accept", "text/event-stream")
 
-	resp, err := (&http.Client{}).Do(req)
+	resp, err := (&http.Client{Timeout: 0}).Do(req)
 	if err != nil {
 		return err
 	}
@@ -81,6 +106,7 @@ func (client ReportingClient) SubscribeToStream(streamID string) error {
 	}
 
 	scanner := bufio.NewScanner(resp.Body)
+	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "data: ") {

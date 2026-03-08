@@ -28,6 +28,6 @@ title "view stream structure"
 go run main.go tree
 
 title "create a new stream"
-STREAM_NAME="test.$(uuidgen)"
+STREAM_NAME="test.sequence1child"
 echo "starting stream: $STREAM_NAME"
 go run main.go new-stream --name=$STREAM_NAME

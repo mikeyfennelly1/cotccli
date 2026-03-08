@@ -27,7 +27,7 @@ type Reader interface {
 	ToProducer() Producer
 }
 
-func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.CollectorClient, streamName string) {
+func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.CollectorClient, producer *client.CreatedProducer, streamName string) {
 	ticker := time.NewTicker(manager.intervalSecs * time.Second)
 	readerInstanceName := manager.reader.GetName()
 	defer ticker.Stop()
@@ -56,6 +56,7 @@ func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.Co
 			}
 
 			data := client.Message{
+				ProducerId:   producer.UUID,
 				ProducerName: readerInstanceName,
 				ReadTime:     time.Now().UnixMilli(),
 				Values:       values,
