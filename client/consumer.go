@@ -22,6 +22,18 @@ type ConsumerClient struct {
 	BaseUrl string
 }
 
+func (client ConsumerClient) Health() error {
+	resp, err := http.Get(fmt.Sprintf("%s/api/consumer/health", client.BaseUrl))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("consumer: unhealthy (status %d)", resp.StatusCode)
+	}
+	return nil
+}
+
 func (client ConsumerClient) CreateStream(stream NewStream) error {
 	log.Infof("creating stream: %v", stream)
 
