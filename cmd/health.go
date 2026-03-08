@@ -18,16 +18,13 @@ var healthCmd = &cobra.Command{
 			logrus.Fatalf("%v", err)
 		}
 
-		webAppBaseUrl := fmt.Sprintf("http://%s:%d", "localhost", cfg.WebAppPort)
-		collectorBaseUrl := fmt.Sprintf("http://%s:%d", "localhost", cfg.CollectorListenPort)
-
 		checks := []struct {
 			name string
 			fn   func() error
 		}{
-			{"reporting", client.NewReportingClient(webAppBaseUrl).Health},
-			{"collector", (&client.CollectorClient{BaseUrl: collectorBaseUrl}).Health},
-			{"consumer", client.NewConsumerClient(webAppBaseUrl).Health},
+			{"reporting", client.NewReportingClient(cfg.GetWebAppBaseUrl()).Health},
+			{"collector", (&client.CollectorClient{BaseUrl: cfg.GetCollectorBaseUrl()}).Health},
+			{"consumer", client.NewConsumerClient(cfg.GetWebAppBaseUrl()).Health},
 		}
 
 		allHealthy := true

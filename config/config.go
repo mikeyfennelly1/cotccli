@@ -14,6 +14,14 @@ type Config struct {
 	DesktopSysinfoListenPort int
 }
 
+func (cfg Config) GetCollectorBaseUrl() string {
+	return fmt.Sprintf("http://%s:%d", "localhost", cfg.CollectorListenPort)
+}
+
+func (cfg Config) GetWebAppBaseUrl() string {
+	return fmt.Sprintf("http://%s:%d", "localhost", cfg.WebAppPort)
+}
+
 // Load reads port configuration from ../.env.local relative to the given base directory.
 // Pass the directory of the running binary or script (e.g. os.Executable()).
 func Load() (*Config, error) {

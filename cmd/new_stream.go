@@ -5,21 +5,25 @@ import (
 	"os"
 
 	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/client"
+	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/config"
 	"github.com/spf13/cobra"
 )
 
 var (
-	streamName      string
-	streamParent    string
-	reporterBaseUrl string
+	streamName   string
+	streamParent string
 )
 
 var newStreamCmd = &cobra.Command{
 	Use:   "new-stream",
 	Short: "Create a new stream on the reporting API",
 	Run: func(cmd *cobra.Command, args []string) {
-		c := client.NewConsumerClient(reporterBaseUrl)
-		err := c.CreateStream(client.NewStream{
+		cfg, err := config.Load()
+		if err != nil {
+			panic(err)
+		}
+		c := client.NewConsumerClient(cfg.GetWebAppBaseUrl())
+		err = c.CreateStream(client.NewStream{
 			Name:   streamName,
 			Parent: streamParent,
 		})
@@ -33,7 +37,6 @@ var newStreamCmd = &cobra.Command{
 func init() {
 	newStreamCmd.Flags().StringVar(&streamName, "name", "", "Name of the new stream (required)")
 	newStreamCmd.Flags().StringVar(&streamParent, "parent", "", "Parent of the new stream")
-	newStreamCmd.Flags().StringVar(&reporterBaseUrl, "reporter-url", "http://localhost:8080", "Base URL of the reporting API")
 
 	newStreamCmd.MarkFlagRequired("name")
 
