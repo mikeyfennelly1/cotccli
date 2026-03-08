@@ -20,6 +20,18 @@ type CollectorClient struct {
 	BaseUrl string
 }
 
+func (client CollectorClient) Health() error {
+	resp, err := http.Get(fmt.Sprintf("%s/api/collector/health", client.BaseUrl))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("collector: unhealthy (status %d)", resp.StatusCode)
+	}
+	return nil
+}
+
 func (client CollectorClient) SendMessage(message Message, topic string) error {
 	log.Infof("sending message to api: %v", message)
 
