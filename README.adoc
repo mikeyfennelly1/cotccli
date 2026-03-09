@@ -1,3 +1,157 @@
-= Desktop application for sysinfo in y2/b3 project
+= b3cli — Desktop Sysinfo CLI
 
-This application returns system information as JSON, based on the `Message` struct in `sysinfo/sysinfo_reading.go`, on a 1-second incremental basis.
+A command-line client for managing producers, streams, and sysinfo data collection in the y2/b3 project.
+
+== Prerequisites
+
+* Go 1.24+
+* The web app and collector services running and reachable
+
+== Configuration
+
+The CLI reads port configuration from a `.env.local` file located one directory **above** where the binary is run from.
+
+[source]
+----
+WEB_APP_PORT=8080
+COLLECTOR_LISTEN_PORT=8081
+DESKTOP_SYSINFO_LISTEN_PORT=8082
+----
+
+== Installation
+
+Run the install script from the project root. It builds the binary and installs it to `/usr/local/bin/b3cli`.
+
+[source,bash]
+----
+./install.sh
+----
+
+Verify the installation:
+
+[source,bash]
+----
+b3cli --help
+----
+
+== Commands
+
+=== health
+
+Check the health of the reporting, collector, and consumer services.
+
+[source,bash]
+----
+b3cli health
+----
+
+=== tree
+
+Print the stream hierarchy as a tree.
+
+[source,bash]
+----
+b3cli tree
+----
+
+=== mkstream
+
+Create a new stream.
+
+[source,bash]
+----
+b3cli mkstream --name <stream-name>
+----
+
+=== rmstream
+
+Delete a stream.
+
+[source,bash]
+----
+b3cli rmstream --name <stream-name>
+----
+
+=== mkproducer
+
+Register a new producer and attach it to a stream.
+
+[source,bash]
+----
+b3cli mkproducer -t <type> -n <producer-name> -s <stream-name>
+----
+
+[cols="1,3"]
+|===
+|Flag |Description
+
+|`-t`, `--type`
+|Type of producer (e.g. `cpu`, `mem`)
+
+|`-n`, `--producer-name`
+|Identifier for the producer
+
+|`-s`, `--stream`
+|Stream name to attach the producer to
+|===
+
+=== produce
+
+Look up a registered producer by name and start sending sysinfo data to the collector.
+
+[source,bash]
+----
+b3cli produce -n <producer-name>
+----
+
+=== lsproducers
+
+List all registered producers.
+
+[source,bash]
+----
+b3cli lsproducers
+----
+
+List producers belonging to a specific stream.
+
+[source,bash]
+----
+b3cli lsproducers -s <stream-name>
+----
+
+=== subscribe
+
+Subscribe to a stream and print incoming SSE events to stdout.
+
+[source,bash]
+----
+b3cli subscribe --name <stream-name>
+----
+
+== Global Flags
+
+[cols="1,1,3"]
+|===
+|Flag |Default |Description
+
+|`--log-level`
+|`info`
+|Log level: `debug`, `info`, `warn`, `error`, `fatal`, `panic`
+
+|`--listen_port`
+|`8079`
+|Port this application listens on
+
+|`--publishing_interval_sec`
+|`1`
+|Interval in seconds between publishing messages to the collector
+
+|`--hostname`
+|`localhost`
+|Hostname of the collector agent
+
+|`--collector_port`
+|`8080`
+|Port the collector API is listening on
+|===

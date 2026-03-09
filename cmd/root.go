@@ -17,8 +17,8 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "sysinfo",
-	Short: "Runs on the host, pushing sysinfo data to the configured collector port.",
+	Use:   "b3cli",
+	Short: "CLI tool for block 3 project.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Parse and set the log level
 		level, err := log.ParseLevel(logLevel)

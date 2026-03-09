@@ -14,15 +14,15 @@ type NewStream struct {
 	Parent string `json:"parent"`
 }
 
-func NewConsumerClient(baseUrl string) *ConsumerClient {
-	return &ConsumerClient{BaseUrl: baseUrl}
+func NewStreamControllerClient(baseUrl string) *StreamControllerClient {
+	return &StreamControllerClient{BaseUrl: baseUrl}
 }
 
-type ConsumerClient struct {
+type StreamControllerClient struct {
 	BaseUrl string
 }
 
-func (client ConsumerClient) Health() error {
+func (client StreamControllerClient) Health() error {
 	resp, err := http.Get(fmt.Sprintf("%s/api/consumer/health", client.BaseUrl))
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func (client ConsumerClient) Health() error {
 	return nil
 }
 
-func (client ConsumerClient) CreateStream(stream NewStream) error {
+func (client StreamControllerClient) CreateStream(stream NewStream) error {
 	log.Infof("creating stream: %v", stream)
 
 	jsonData, err := json.Marshal(stream)
@@ -56,13 +56,13 @@ func (client ConsumerClient) CreateStream(stream NewStream) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("api returned non-201 status: %d", resp.StatusCode)
+		return errFromResponseBody(*resp)
 	}
 
 	return nil
 }
 
-func (client ConsumerClient) DeleteStream(name string) error {
+func (client StreamControllerClient) DeleteStream(name string) error {
 	url := fmt.Sprintf("%s/api/consumer/streams?name=%s", client.BaseUrl, name)
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {

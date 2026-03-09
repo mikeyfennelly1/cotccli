@@ -8,7 +8,7 @@ import (
 )
 
 type Producer interface {
-	StartScheduledProducer(collectorClient *client.CollectorClient, producer *client.CreatedProducer, streamName string)
+	StartScheduledProducer(collectorClient *client.CollectorClient, producer *client.ProducerMetadata) error
 	GetName() string
 }
 
