@@ -14,12 +14,17 @@ type NewProducer struct {
 	StreamName string `json:"streamName"`
 }
 
-type CreatedProducer struct {
+type ProducerMetadata struct {
 	UUID         string `json:"uuid"`
 	ProducerName string `json:"producerName"`
+	StreamName   string `json:"streamName"`
 }
 
-func (client ConsumerClient) CreateProducer(producer NewProducer) (*CreatedProducer, error) {
+func NewProducerClient(baseUrl string) {
+
+}
+
+func (client StreamControllerClient) CreateProducer(producer NewProducer) (*ProducerMetadata, error) {
 	log.Infof("creating producer: %v", producer)
 
 	jsonData, err := json.Marshal(producer)
@@ -40,26 +45,39 @@ func (client ConsumerClient) CreateProducer(producer NewProducer) (*CreatedProdu
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusConflict {
-		var errResp struct {
-			Error string `json:"error"`
-		}
-		if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil && errResp.Error != "" {
-			log.Infof("producer already exists, skipping creation: %s", errResp.Error)
-			return nil, fmt.Errorf("producer already exists")
-		} else {
-			log.Infof("producer already exists, skipping creation")
-			return nil, fmt.Errorf("producer already exists")
-		}
-	}
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("api returned non-201 status: %d", resp.StatusCode)
+		return nil, errFromResponseBody(*resp)
 	}
 
-	var created CreatedProducer
+	var created ProducerMetadata
 	if err := json.NewDecoder(resp.Body).Decode(&created); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return &created, nil
+}
+
+type Producer struct {
+	UUID         string `json:"uuid"`
+	ProducerName string `json:"producerName"`
+	StreamId     string `json:"streamId"`
+}
+
+func (client ReportingClient) GetProducers() ([]Producer, error) {
+	resp, err := http.Get(fmt.Sprintf("%s/api/reporting/producers", client.BaseUrl))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errFromResponseBody(*resp)
+	}
+
+	var producers []Producer
+	if err := json.NewDecoder(resp.Body).Decode(&producers); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return producers, nil
 }

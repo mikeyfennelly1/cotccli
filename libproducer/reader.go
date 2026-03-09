@@ -27,7 +27,10 @@ type Reader interface {
 	ToProducer() Producer
 }
 
-func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.CollectorClient, producer *client.CreatedProducer, streamName string) {
+func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.CollectorClient, producer *client.ProducerMetadata) error {
+	if producer.StreamName == "" {
+		return fmt.Errorf("empty stream name received")
+	}
 	ticker := time.NewTicker(manager.intervalSecs * time.Second)
 	readerInstanceName := manager.reader.GetName()
 	defer ticker.Stop()
@@ -35,8 +38,8 @@ func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.Co
 	// goroutine for subscriber to this producer job
 	go func() {
 		for msg := range manager.messageChannel {
-			log.Debugf("%s - sending message from producer to stream: %s", readerInstanceName, streamName)
-			err := collectorClient.SendMessage(msg, streamName)
+			log.Debugf("%s - sending message from producer to stream: %s", readerInstanceName, producer.StreamName)
+			err := collectorClient.SendMessage(msg, producer.StreamName)
 			if err != nil {
 				log.Errorf("error writing to api: %v", err)
 			}
@@ -67,7 +70,7 @@ func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.Co
 
 		case <-manager.ctx.Done():
 			log.Infof("Scheduled reader task stopped for reader %s", readerInstanceName)
-			return
+			return nil
 		}
 	}
 }

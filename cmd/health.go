@@ -24,7 +24,7 @@ var healthCmd = &cobra.Command{
 		}{
 			{"reporting", client.NewReportingClient(cfg.GetWebAppBaseUrl()).Health},
 			{"collector", (&client.CollectorClient{BaseUrl: cfg.GetCollectorBaseUrl()}).Health},
-			{"consumer", client.NewConsumerClient(cfg.GetWebAppBaseUrl()).Health},
+			{"consumer", client.NewStreamControllerClient(cfg.GetWebAppBaseUrl()).Health},
 		}
 
 		allHealthy := true

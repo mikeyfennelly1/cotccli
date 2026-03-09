@@ -117,6 +117,46 @@ func (client ReportingClient) SubscribeToStream(streamID string) error {
 	return scanner.Err()
 }
 
+func (client ReportingClient) GetProducersByStreamId(streamId string) ([]Producer, error) {
+	url := fmt.Sprintf("%s/api/reporting/streams/%s/producers", client.BaseUrl, streamId)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errFromResponseBody(*resp)
+	}
+
+	var producers []Producer
+	if err := json.NewDecoder(resp.Body).Decode(&producers); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return producers, nil
+}
+
+func (client ReportingClient) GetProducerByName(name string) (*ProducerMetadata, error) {
+	url := fmt.Sprintf("%s/api/reporting/producers?name=%s", client.BaseUrl, name)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errFromResponseBody(*resp)
+	}
+
+	var producer ProducerMetadata
+	if err := json.NewDecoder(resp.Body).Decode(&producer); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return &producer, nil
+}
+
 func printStreamTree(node StreamNode, prefix string, isRoot bool) {
 	if isRoot {
 		fmt.Println(node.Name)

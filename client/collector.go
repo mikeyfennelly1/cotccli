@@ -27,7 +27,11 @@ func (client CollectorClient) Health() error {
 }
 
 func (client CollectorClient) SendMessage(message Message, topic string) error {
-	log.Infof("sending message to topic %s: %v", topic, message)
+	if topic == "" {
+		return fmt.Errorf("received empty topic argument")
+	}
+
+	log.Infof("sending message to topic %s", topic)
 
 	jsonData, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {

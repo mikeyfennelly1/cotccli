@@ -30,4 +30,9 @@ go run main.go tree
 title "create a new stream"
 STREAM_NAME="test.sequence1child"
 echo "starting stream: $STREAM_NAME"
-go run main.go new-stream --name=$STREAM_NAME
+go run main.go mkstream --name=$STREAM_NAME
+
+echo "listing all producers"
+go run main.go lsproducers
+
+

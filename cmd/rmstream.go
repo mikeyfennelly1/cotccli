@@ -19,7 +19,7 @@ var rmStreamCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		c := client.NewConsumerClient(cfg.GetWebAppBaseUrl())
+		c := client.NewStreamControllerClient(cfg.GetWebAppBaseUrl())
 		err = c.DeleteStream(rmStreamName)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed to delete stream: %v\n", err)
