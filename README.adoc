@@ -1,4 +1,4 @@
-= b3cli — Desktop Sysinfo CLI
+= cotccli
 
 A command-line client for managing producers, streams, and sysinfo data collection in the y2/b3 project.
 
