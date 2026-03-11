@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -26,7 +28,7 @@ func (cfg Config) GetWebAppBaseUrl() string {
 // Pass the directory of the running binary or script (e.g. os.Executable()).
 func Load() (*Config, error) {
 	wd, _ := os.Getwd()
-	envPath := wd + "/../.env.local"
+	envPath := wd + "/.env.local"
 
 	vals, err := parseEnvFile(envPath)
 	if err != nil {
@@ -52,6 +54,10 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Debugf("cotcsubscriber port: %d", webAppPort)
+	log.Debugf("cotccollector port: %d", collectorPort)
+	log.Debugf("application producer server port: %d", desktopPort)
 
 	return &Config{
 		WebAppPort:               webAppPort,

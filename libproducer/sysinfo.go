@@ -29,7 +29,7 @@ func (reader sysinfoReader) GetType() string {
 }
 
 func (reader sysinfoReader) GetName() string {
-	return fmt.Sprintf("sysinfo-reader--%s", reader.id)
+	return reader.id
 }
 
 func (reader sysinfoReader) GetValues() (map[string]float64, error) {

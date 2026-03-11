@@ -17,7 +17,7 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "b3cli",
+	Use:   "cotc",
 	Short: "CLI tool for block 3 project.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Parse and set the log level

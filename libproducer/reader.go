@@ -28,9 +28,6 @@ type Reader interface {
 }
 
 func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.CollectorClient, producer *client.ProducerMetadata) error {
-	if producer.StreamName == "" {
-		return fmt.Errorf("empty stream name received")
-	}
 	ticker := time.NewTicker(manager.intervalSecs * time.Second)
 	readerInstanceName := manager.reader.GetName()
 	defer ticker.Stop()
@@ -38,8 +35,8 @@ func (manager ReaderDecorator) StartScheduledProducer(collectorClient *client.Co
 	// goroutine for subscriber to this producer job
 	go func() {
 		for msg := range manager.messageChannel {
-			log.Debugf("%s - sending message from producer to stream: %s", readerInstanceName, producer.StreamName)
-			err := collectorClient.SendMessage(msg, producer.StreamName)
+			log.Debugf("%s - sending message from producer to stream: %s", readerInstanceName)
+			err := collectorClient.SendMessage(msg)
 			if err != nil {
 				log.Errorf("error writing to api: %v", err)
 			}

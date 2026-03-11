@@ -1,30 +1,36 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/client"
 	"github.com/mikeyfennelly1/ise--y2--b3--project--desktop-sysinfo/config"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var treeCmd = &cobra.Command{
-	Use:   "tree",
-	Short: "Print the group hierarchy as a tree",
+var (
+	groupName string
+)
+
+var mkgroup = &cobra.Command{
+	Use:   "mkgroup",
+	Short: "Create a new group.",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, err := config.Load()
 		if err != nil {
 			panic(err)
 		}
 		c := client.NewGroupControllerClient(cfg.GetWebAppBaseUrl())
-		if err := c.GetGroupHierarchy(); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to get group hierarchy: %v\n", err)
-			os.Exit(1)
+		err = c.CreateGroup(groupName)
+		if err != nil {
+			log.Fatalf("failed to create group: %v\n", err)
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(treeCmd)
+	mkgroup.Flags().StringVarP(&groupName, "name", "n", "", "Name of the new group")
+
+	mkgroup.MarkFlagRequired("name")
+
+	rootCmd.AddCommand(mkgroup)
 }

@@ -26,10 +26,8 @@ func (client CollectorClient) Health() error {
 	return nil
 }
 
-func (client CollectorClient) SendMessage(message Message, topic string) error {
-	if topic == "" {
-		return fmt.Errorf("received empty topic argument")
-	}
+func (client CollectorClient) SendMessage(message Message) error {
+	topic := "TIMESERIES"
 
 	log.Infof("sending message to topic %s", topic)
 

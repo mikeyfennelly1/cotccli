@@ -22,9 +22,9 @@ var healthCmd = &cobra.Command{
 			name string
 			fn   func() error
 		}{
-			{"reporting", client.NewReportingClient(cfg.GetWebAppBaseUrl()).Health},
+			{"producer", client.NewProducerClient(cfg.GetWebAppBaseUrl()).Health},
 			{"collector", (&client.CollectorClient{BaseUrl: cfg.GetCollectorBaseUrl()}).Health},
-			{"consumer", client.NewStreamControllerClient(cfg.GetWebAppBaseUrl()).Health},
+			{"group", client.NewGroupControllerClient(cfg.GetWebAppBaseUrl()).Health},
 		}
 
 		allHealthy := true

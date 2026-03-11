@@ -9,26 +9,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var subscribeCmd = &cobra.Command{
-	Use:   "subscribe",
-	Short: "Subscribe to a group and print incoming SSE events",
+var rmgroup = &cobra.Command{
+	Use:   "rmgroup",
+	Short: "Delete a group on the reporting API",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, err := config.Load()
 		if err != nil {
 			panic(err)
 		}
 		c := client.NewGroupControllerClient(cfg.GetWebAppBaseUrl())
-
-		if err := c.SubscribeToGroupEvents(groupName); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to subscribe to group: %v\n", err)
+		err = c.DeleteGroup(groupName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to delete group: %v\n", err)
 			os.Exit(1)
 		}
 	},
 }
 
 func init() {
-	subscribeCmd.Flags().StringVar(&groupName, "name", "", "Name of the group to subscribe to.")
-	subscribeCmd.MarkFlagRequired("name")
-
-	rootCmd.AddCommand(subscribeCmd)
+	rmgroup.Flags().StringVarP(&groupName, "name", "n", "", "Name of the group to delete (required)")
+	rmgroup.MarkFlagRequired("name")
+	rootCmd.AddCommand(rmgroup)
 }

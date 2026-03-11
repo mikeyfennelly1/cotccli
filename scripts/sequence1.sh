@@ -11,6 +11,7 @@ else
         BASEDIR=$(readlink -e "$(dirname "$0")/")
 fi
 pushd "${BASEDIR}/.."
+source .env.local
 
 function title() {
   echo ""
@@ -22,17 +23,25 @@ function title() {
 }
 
 title "checking health"
-go run main.go health
+cotc health
 
 title "view stream structure"
-go run main.go tree
+cotc tree
 
 title "create a new stream"
-STREAM_NAME="test.sequence1child"
-echo "starting stream: $STREAM_NAME"
-go run main.go mkstream --name=$STREAM_NAME
 
-echo "listing all producers"
-go run main.go lsproducers
+cotc rmstream --name=$STREAM_NAME
 
+STREAM_NAME="test"
+title "starting stream: $STREAM_NAME"
+cotc mkstream --name=$STREAM_NAME
+
+title "listing all producers"
+cotc lsproducers
+
+title "registering producer"
+cotc mkproducer -g test -n clitest
+
+title "starting producer"
+cotc produce -n sysinfo-reader--2 -t sysinfo --log-level=debug
 

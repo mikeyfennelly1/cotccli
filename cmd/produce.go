@@ -13,11 +13,12 @@ import (
 
 var (
 	producerName string
+	sseMode      bool
 )
 
 var produce = &cobra.Command{
 	Use:   "produce",
-	Short: "Starts a producer given a type, name and stream producerName.",
+	Short: "Starts a producer given a type, name and group producerName.",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, err := config.Load()
 		if err != nil {
@@ -30,12 +31,11 @@ var produce = &cobra.Command{
 		}
 
 		log.Debugf("Starting server of type %s on port %d", producerType, listeningPort)
-		log.Debugf("Collector agent: %s:%d", collectorAgentHostname, collectorAgentListeningPort)
 
-		reportingClient := client.NewReportingClient(cfg.GetWebAppBaseUrl())
+		reportingClient := client.NewProducerClient(cfg.GetWebAppBaseUrl())
 		producerMetadata, err := reportingClient.GetProducerByName(producerName)
 		if err != nil {
-			log.Fatalf("failed to find producer %q: %v", producerName, err)
+			log.Fatalf("failed to find producer %q: %v", producerName, err.Error())
 		}
 
 		producer := reader.ToProducer()
@@ -52,6 +52,7 @@ var produce = &cobra.Command{
 func init() {
 	produce.Flags().StringVarP(&producerName, "producer-name", "n", "", "Name of the registered producer to look up")
 	produce.Flags().StringVarP(&producerType, "producer-type", "t", "", "The type of producer to start")
+	produce.Flags().BoolVar(&sseMode, "sse", false, "Serve producer readings as SSE events at /events")
 
 	produce.MarkFlagRequired("producer-name")
 	produce.MarkFlagRequired("producer-name")

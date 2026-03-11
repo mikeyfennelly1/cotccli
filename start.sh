@@ -17,4 +17,4 @@ source "${BASEDIR}"/scripts/helpers.sh
 
 var_must_exist DESKTOP_SYSINFO_LISTEN_PORT DESKTOP_SYSINFO_LOG_LEVEL
 
-go run "${BASEDIR}"/main.go producer -n 1 -s test -t sysinfo --log-level=debug -p "${COLLECTOR_LISTEN_PORT}"
+./scripts/sequence1.sh

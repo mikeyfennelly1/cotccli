@@ -7,16 +7,17 @@ import (
 )
 
 type ServerErr struct {
-	Error string `json:"error"`
+	Timestamp string `json:"timestamp"`
+	Message   string `json:"message"`
 }
 
 func (ce ServerErr) toGolangErr() error {
-	return fmt.Errorf("ServerErr: %s", ce.Error)
+	return fmt.Errorf("message: %s", ce.Message)
 }
 
 func errFromResponseBody(resp http.Response) error {
 	var clientErr ServerErr
-	if err := json.NewDecoder(resp.Body).Decode(&clientErr); err == nil && clientErr.Error != "" {
+	if err := json.NewDecoder(resp.Body).Decode(&clientErr); err == nil && clientErr.Timestamp != "" {
 		return clientErr.toGolangErr()
 	}
 	return fmt.Errorf("unexpected response from server, unable to parse to ServerErr")

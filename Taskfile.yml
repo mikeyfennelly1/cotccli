@@ -16,3 +16,8 @@ tasks:
     desc: Start the godoc documentation server on port 6060 and open in browser
     cmds:
       - bash scripts/docs.sh
+
+  sse:
+    desc: Start a sysinfo SSE producer on port 8082
+    cmds:
+      - go run . sse --listen_port 8082

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BINARY_NAME="b3cli"
+BINARY_NAME="cotc"
 INSTALL_DIR="/usr/local/bin"
 
 echo "Building $BINARY_NAME..."

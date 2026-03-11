@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var lsProducersStreamName string
+var lsProducersGroupName string
 
 var lsProducersCmd = &cobra.Command{
 	Use:   "lsproducers",
@@ -20,17 +20,12 @@ var lsProducersCmd = &cobra.Command{
 			log.Fatalf("failed to load config: %v", err)
 		}
 
-		reportingClient := client.NewReportingClient(cfg.GetWebAppBaseUrl())
+		producerClient := client.NewProducerClient(cfg.GetWebAppBaseUrl())
 
-		if lsProducersStreamName != "" {
-			streamId, err := reportingClient.GetStreamUUIDByName(lsProducersStreamName)
+		if lsProducersGroupName != "" {
+			producers, err := producerClient.GetProducersForGroup(lsProducersGroupName)
 			if err != nil {
-				log.Fatalf("failed to find stream %q: %v", lsProducersStreamName, err)
-			}
-
-			producers, err := reportingClient.GetProducersByStreamId(streamId)
-			if err != nil {
-				log.Fatalf("failed to get producers for stream %q: %v", lsProducersStreamName, err)
+				log.Fatalf("failed to get producers for group %q: %v", lsProducersGroupName, err)
 			}
 
 			for _, p := range producers {
@@ -39,7 +34,7 @@ var lsProducersCmd = &cobra.Command{
 			return
 		}
 
-		producers, err := reportingClient.GetProducers()
+		producers, err := producerClient.GetProducers()
 		if err != nil {
 			log.Fatalf("failed to get producers: %v", err)
 		}
@@ -51,6 +46,6 @@ var lsProducersCmd = &cobra.Command{
 }
 
 func init() {
-	lsProducersCmd.Flags().StringVarP(&lsProducersStreamName, "stream", "s", "", "Stream name to list producers for")
+	lsProducersCmd.Flags().StringVarP(&lsProducersGroupName, "group", "g", "", "Stream name to list producers for")
 	rootCmd.AddCommand(lsProducersCmd)
 }
